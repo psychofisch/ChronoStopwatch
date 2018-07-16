@@ -16,30 +16,61 @@ size_t ChronoStopwatch::start()
 	return mStart.size() - 1;
 }
 
+double ChronoStopwatch::stop()
+{
+	size_t index = mStart.size() - 1;
+
+	for (size_t x = mStop.size() - 1; mStop.size() > 0 && x >= 0; x--)
+	{
+		if (mStop[x].second == index)
+		{
+			if (index > 0)
+			{
+				index--;
+				x = mStop.size();
+			}
+			else
+				return -1.0;
+		}
+
+		if (x == 0)
+			break;
+	}
+
+	return this->stop(index);
+}
+
 double ChronoStopwatch::stop(size_t i)
 {
 	mStop.push_back(timepointIndex(std::chrono::high_resolution_clock::now(), i));
-	auto diff = std::chrono::duration_cast<std::chrono::duration<double>>(mStop[i] - mStart);
-	return m_count - 1;
+	return this->getDuration(i);
 }
 
-double ChronoStopwatch::getDuration(size_t count) const
+double ChronoStopwatch::getDuration(size_t i) const
 {
-	if (count >= mStop.size() || count >= mStart.size())
+	timepointIndex endTime;
+	bool found = false;
+
+	for (size_t x = 0; x < mStop.size(); x++)
 	{
-		return -1.0;
+		if (mStop[x].second == i)
+		{
+			endTime = mStop[x];
+			found = true;
+			break;
+		}
 	}
-	std::chrono::duration<double> d = std::chrono::duration_cast<std::chrono::duration<double>>(mStop[count] - mStart[count]);
-	return d.count();
+
+	if (found)
+	{
+		auto d = std::chrono::duration_cast<std::chrono::duration<double>>(endTime.first - mStart[i]);
+		return d.count();
+	}
+	else
+		return -1.0;
 }
 
-std::string ChronoStopwatch::getDurationString(int count)
-{
-	double d = getDuration(count);
-	return getFormatted(d);
-}
-
-std::string ChronoStopwatch::getFormatted(double nmbr)
+std::string ChronoStopwatch::getFormatString(double nmbr)
 {
 	std::stringstream test;	
 	std::chrono::duration<double> diff(nmbr);

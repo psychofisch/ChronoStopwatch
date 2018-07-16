@@ -9,7 +9,6 @@
 class ChronoStopwatch
 {
 public:
-	typedef std::chrono::high_resolution_clock::time_point timepoint;
 	enum Action { START, STOP };
 
 	ChronoStopwatch();
@@ -23,10 +22,13 @@ public:
 	double stop(size_t i);
 	// returns the duration of a specific timer
 	double getDuration(size_t i) const;
-	std::string getDurationString(int count);
-	std::string getFormatted(double nmbr);
+
+	// statics
+	// returns the given time (in seconds) in the format HH:MM:SS.mmmm
+	static std::string getFormatString(double nmbr);
 
 private:
+	typedef std::chrono::high_resolution_clock::time_point timepoint;
 	typedef std::pair<timepoint, size_t> timepointIndex;
 	
 	std::vector<timepoint> mStart;
